@@ -1,15 +1,66 @@
 #![feature(min_const_generics)]
+#![no_std]
+#![no_main]
+#![allow(non_snake_case)]
+use core::panic::PanicInfo;
 
-use polybench_rs::stencils::heat_3d::bench;
-
-fn bench_and_print<const N: usize, const TSTEPS: usize>() {
-    let dims = format!("{:?}", (N, TSTEPS));
-    let elapsed = bench::<N, TSTEPS>().as_secs_f64();
-    println!("{:<14} | {:<30} | {:.7} s", "heat_3d", dims, elapsed);
+fn init_array<const N: usize, const TSTEPS: usize>(
+    n: usize,
+    A: &mut [[[f32; N]; N]; N],
+    B: &mut [[[f32; N]; N]; N],
+) {
+    for i in 0..n {
+        for j in 0..n {
+            for k in 0..n {
+                B[i][j][k] = (i + j + (n - k)) as f32 * (10 as f32) / n as f32;
+                A[i][j][k] = B[i][j][k];
+            }
+        }
+    }
 }
 
-fn main() {
-    bench_and_print::<30, 125>();
-    bench_and_print::<60, 250>();
-    bench_and_print::<120, 500>();
+fn kernel_heat_3d<const N: usize, const TSTEPS: usize>(
+    tsteps: usize,
+    n: usize,
+    A: &mut [[[f32; N]; N]; N],
+    B: &mut [[[f32; N]; N]; N],
+) {
+    for _ in 1..tsteps {
+        for i in 1..(n - 1) {
+            for j in 1..(n - 1) {
+                for k in 1..(n - 1) {
+                    B[i][j][k] = 0.125 * (A[i + 1][j][k] - 2.0 * A[i][j][k] + A[i - 1][j][k])
+                        + 0.125 * (A[i][j + 1][k] - 2.0 * A[i][j][k] + A[i][j - 1][k])
+                        + 0.125 * (A[i][j][k + 1] - 2.0 * A[i][j][k] + A[i][j][k - 1])
+                        + A[i][j][k];
+                }
+            }
+        }
+        for i in 1..(n - 1) {
+            for j in 1..(n - 1) {
+                for k in 1..(n - 1) {
+                    A[i][j][k] = 0.125 * (B[i + 1][j][k] - 2.0 * B[i][j][k] + B[i - 1][j][k])
+                        + 0.125 * (B[i][j + 1][k] - 2.0 * B[i][j][k] + B[i][j - 1][k])
+                        + 0.125 * (B[i][j][k + 1] - 2.0 * B[i][j][k] + B[i][j][k - 1])
+                        + B[i][j][k];
+                }
+            }
+        }
+    }
+}
+#[no_mangle]
+fn start() {
+    const N: usize = 10;
+    const TSTEPS: usize = 10;
+
+    let mut A = [[[0_f32; N]; N]; N];
+    let mut B = [[[0_f32; N]; N]; N];
+
+    init_array::<N, TSTEPS>(N, &mut A, &mut B);
+    kernel_heat_3d::<N, TSTEPS>(TSTEPS, N, &mut A, &mut B);
+}
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
 }

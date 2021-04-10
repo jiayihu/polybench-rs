@@ -1,15 +1,50 @@
 #![feature(min_const_generics)]
+#![no_std]
+#![no_main]
+#![allow(non_snake_case)]
+use core::panic::PanicInfo;
 
-use polybench_rs::linear_algebra::solvers::durbin::bench;
-
-fn bench_and_print<const N: usize>() {
-    let dims = format!("{:?}", (N));
-    let elapsed = bench::<N>().as_secs_f64();
-    println!("{:<14} | {:<30} | {:.7} s", "durbin", dims, elapsed);
+fn init_array<const N: usize>(n: usize, r: &mut [f32; N]) {
+    for i in 0..n {
+        r[i] = (n + 1 - i) as f32;
+    }
 }
 
-fn main() {
-    bench_and_print::<500>();
-    bench_and_print::<1000>();
-    bench_and_print::<2000>();
+fn kernel_durbin<const N: usize>(n: usize, r: &[f32; N], y: &mut [f32; N]) {
+    let mut z: [f32; N] = unsafe { core::mem::MaybeUninit::uninit().assume_init() };
+
+    y[0] = -r[0];
+    let mut beta = 1.0;
+    let mut alpha = -r[0];
+    for k in 1..n {
+        beta = (1.0 - alpha * alpha) * beta;
+        let mut sum = 0.0;
+        for i in 0..k {
+            sum += r[k - i - 1] * y[i];
+        }
+        alpha = -(r[k] + sum) / beta;
+
+        for i in 0..k {
+            z[i] = y[i] + alpha * y[k - i - 1];
+        }
+        for i in 0..k {
+            y[i] = z[i];
+        }
+        y[k] = alpha;
+    }
+}
+#[no_mangle]
+fn start() {
+    const N: usize = 10;
+
+    let mut r = [0_f32; N];
+    let mut y = [0_f32; N];
+
+    init_array(N, &mut r);
+    kernel_durbin(N, &r, &mut y);
+}
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
 }

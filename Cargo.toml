@@ -1,11 +1,20 @@
 [package]
 name = "polybench-rs"
 version = "0.2.0"
-authors = ["Joseph Rafael Ferrer <rafael2x0@gmail.com>"]
+authors = ["Joseph Rafael Ferrer <rafael2x0@gmail.com>", "Jiayi Hu <jiayi.ghu@gmail.com>"]
 edition = "2018"
 license = "GPLv2"
 
 [features]
-print-result = []
+std = []
 
 [dependencies]
+
+[lib]
+name = "trmm"
+path = "src/trmm.rs"
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+opt-level = "z"

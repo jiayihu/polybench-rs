@@ -1,15 +1,63 @@
 #![feature(min_const_generics)]
+#![no_std]
+#![no_main]
+#![allow(non_snake_case)]
+use core::panic::PanicInfo;
 
-use polybench_rs::linear_algebra::kernels::bicg::bench;
-
-fn bench_and_print<const M: usize, const N: usize>() {
-    let dims = format!("{:?}", (M, N));
-    let elapsed = bench::<M, N>().as_secs_f64();
-    println!("{:<14} | {:<30} | {:.7} s", "bicg", dims, elapsed);
+fn init_array<const M: usize, const N: usize>(
+    m: usize,
+    n: usize,
+    A: &mut [[f32; N]; M],
+    r: &mut [f32; M],
+    p: &mut [f32; N],
+) {
+    for i in 0..n {
+        p[i] = (i % n) as f32 / n as f32;
+    }
+    for i in 0..m {
+        r[i] = (i % m) as f32 / m as f32;
+        for j in 0..n {
+            A[i][j] = (i * (j + 1) % m) as f32 / m as f32;
+        }
+    }
 }
 
-fn main() {
-    bench_and_print::<475, 525>();
-    bench_and_print::<950, 1050>();
-    bench_and_print::<1900, 2100>();
+fn kernel_bicg<const M: usize, const N: usize>(
+    m: usize,
+    n: usize,
+    A: &[[f32; N]; M],
+    s: &mut [f32; N],
+    q: &mut [f32; M],
+    p: &[f32; N],
+    r: &[f32; M],
+) {
+    for i in 0..n {
+        s[i] = 0.0;
+    }
+    for i in 0..m {
+        q[i] = 0.0;
+        for j in 0..n {
+            s[j] = s[j] + r[i] * A[i][j];
+            q[i] = q[i] + A[i][j] * p[j];
+        }
+    }
+}
+#[no_mangle]
+fn start() {
+    const M: usize = 10;
+    const N: usize = 10;
+
+    let mut A = [[0_f32; N]; M];
+    let mut s = [0_f32; N];
+    let mut q = [0_f32; M];
+    let mut p = [0_f32; N];
+    let mut r = [0_f32; M];
+
+    init_array(M, N, &mut A, &mut r, &mut p);
+    kernel_bicg(M, N, &A, &mut s, &mut q, &p, &r);
+}
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
 }

@@ -1,15 +1,41 @@
 #![feature(min_const_generics)]
+#![no_std]
+#![no_main]
+#![allow(non_snake_case)]
+use core::panic::PanicInfo;
 
-use polybench_rs::linear_algebra::solvers::trisolv::bench;
-
-fn bench_and_print<const N: usize>() {
-    let dims = format!("{:?}", (N));
-    let elapsed = bench::<N>().as_secs_f64();
-    println!("{:<14} | {:<30} | {:.7} s", "trisolv", dims, elapsed);
+fn init_array<const N: usize>(n: usize, L: &mut [[f32; N]; N], x: &mut [f32; N], b: &mut [f32; N]) {
+    for i in 0..n {
+        x[i] = -999.0;
+        b[i] = i as f32;
+        for j in 0..=i {
+            L[i][j] = (i + n - j + 1) as f32 * 2.0 / n as f32;
+        }
+    }
 }
 
-fn main() {
-    bench_and_print::<500>();
-    bench_and_print::<1000>();
-    bench_and_print::<2000>();
+fn kernel_trisolv<const N: usize>(n: usize, L: &[[f32; N]; N], x: &mut [f32; N], b: &[f32; N]) {
+    for i in 0..n {
+        x[i] = b[i];
+        for j in 0..i {
+            x[i] -= L[i][j] * x[j];
+        }
+        x[i] = x[i] / L[i][i];
+    }
+}
+#[no_mangle]
+fn start() {
+    const N: usize = 10;
+
+    let mut L = [[0_f32; N]; N];
+    let mut x = [0_f32; N];
+    let mut b = [0_f32; N];
+
+    init_array(N, &mut L, &mut x, &mut b);
+    kernel_trisolv(N, &L, &mut x, &b);
+}
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
 }

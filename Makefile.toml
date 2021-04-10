@@ -1,0 +1,24 @@
+
+[tasks.build-release]
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.wasm-opt]
+command = "wasm-opt"
+args = ["-Os", "-o", "wasm/${@}.wasm", "target/wasm32-unknown-unknown/release/${@}.wasm"]
+
+[tasks.wasm-strip]
+command = "wasm-strip"
+args = ["wasm/${@}.wasm"]
+
+[tasks.twiggy]
+command = "twiggy"
+args = ["top", "-n", "20", "wasm/${@}.wasm"]
+
+[tasks.build-wasm]
+dependencies = [
+    "build-release",
+    "wasm-opt",
+    "wasm-strip",
+    "twiggy"
+]
