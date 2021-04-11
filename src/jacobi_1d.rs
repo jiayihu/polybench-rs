@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const N: usize, const TSTEPS: usize>(n: usize, A: &mut [f32; N], B: &mut [f32; N]) {
     for i in 0..n {
@@ -33,4 +34,7 @@ pub extern "C" fn bench() {
 
     init_array::<N, TSTEPS>(N, &mut A, &mut B);
     kernel_jacobi_1d::<N, TSTEPS>(TSTEPS, N, &mut A, &mut B);
+
+    utils::consume(A);
+    utils::consume(B);
 }

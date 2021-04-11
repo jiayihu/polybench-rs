@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const N: usize>(n: usize, L: &mut [[f32; N]; N], x: &mut [f32; N], b: &mut [f32; N]) {
     for i in 0..n {
@@ -30,4 +31,6 @@ pub extern "C" fn bench() {
 
     init_array(N, &mut L, &mut x, &mut b);
     kernel_trisolv(N, &L, &mut x, &b);
+
+    utils::consume(x);
 }

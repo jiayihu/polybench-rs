@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const N: usize, const TSTEPS: usize>(
     n: usize,
@@ -43,4 +44,7 @@ pub extern "C" fn bench() {
 
     init_array::<N, TSTEPS>(N, &mut A, &mut B);
     kernel_jacobi_2d::<N, TSTEPS>(TSTEPS, N, &mut A, &mut B);
+
+    utils::consume(A);
+    utils::consume(B);
 }

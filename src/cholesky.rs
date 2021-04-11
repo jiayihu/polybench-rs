@@ -1,9 +1,9 @@
-#![feature(min_const_generics)]
 #![feature(core_intrinsics)]
 #![allow(non_snake_case)]
 
-use core::intrinsics::sqrtf32;
 mod utils;
+
+use core::intrinsics::sqrtf32;
 
 fn init_array<const N: usize>(n: usize, A: &mut [[f32; N]; N]) {
     for i in 0..n {
@@ -41,4 +41,5 @@ pub extern "C" fn bench() {
 
     init_array(N, &mut A);
     kernel_cholesky(N, &mut A);
+    utils::consume(A);
 }

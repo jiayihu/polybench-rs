@@ -1,7 +1,8 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
 
-fn init_array(n: usize, A: &mut [[f32; 50]; 50]) {
+mod utils;
+
+fn init_array<const N: usize>(n: usize, A: &mut [[f32; N]; N]) {
     for i in 0..n {
         for j in 0..n {
             A[i][j] = (i * (j + 2) + 2) as f32 / n as f32;
@@ -9,7 +10,7 @@ fn init_array(n: usize, A: &mut [[f32; 50]; 50]) {
     }
 }
 
-fn kernel_seidel_2d(tsteps: usize, n: usize, A: &mut [[f32; 50]; 50]) {
+fn kernel_seidel_2d<const N: usize>(tsteps: usize, n: usize, A: &mut [[f32; N]; N]) {
     for _ in 0..tsteps {
         for i in 1..(n - 1) {
             for j in 1..(n - 1) {
@@ -30,11 +31,13 @@ fn kernel_seidel_2d(tsteps: usize, n: usize, A: &mut [[f32; 50]; 50]) {
 
 #[no_mangle]
 pub extern "C" fn bench() {
-    const N: usize = 50;
-    const TSTEPS: usize = 12;
+    const N: usize = 10;
+    const TSTEPS: usize = 5;
 
     let mut A = [[0_f32; N]; N];
 
     init_array(N, &mut A);
-    kernel_seidel_2d(TSTEPS, N, &mut A)
+    kernel_seidel_2d(TSTEPS, N, &mut A);
+
+    utils::consume(A);
 }

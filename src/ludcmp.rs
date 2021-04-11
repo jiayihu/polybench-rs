@@ -1,4 +1,3 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
 
 mod utils;
@@ -83,4 +82,6 @@ pub extern "C" fn bench() {
 
     init_array(N, &mut A, &mut b, &mut x, &mut y);
     kernel_ludcmp(N, &mut A, &b, &mut x, &mut y);
+
+    utils::consume(x);
 }

@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const N: usize>(n: usize, path: &mut [[f32; N]; N]) {
     for i in 0..n {
@@ -33,4 +34,6 @@ pub extern "C" fn bench() {
 
     init_array(N, &mut path);
     kernel_floyd_warshall(N, &mut path);
+
+    utils::consume(path);
 }

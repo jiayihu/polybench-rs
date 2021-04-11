@@ -1,6 +1,7 @@
-#![feature(min_const_generics)]
 #![feature(core_intrinsics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 use core::intrinsics::sqrtf32;
 
@@ -80,5 +81,6 @@ pub extern "C" fn bench() {
     let mut stddev = [0_f32; N];
 
     init_array(M, N, &mut float_n, &mut data);
-    kernel_correlation(M, N, float_n, &mut data, &mut corr, &mut mean, &mut stddev)
+    kernel_correlation(M, N, float_n, &mut data, &mut corr, &mut mean, &mut stddev);
+    utils::consume(corr);
 }

@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const M: usize, const N: usize>(
     m: usize,
@@ -50,5 +51,7 @@ pub extern "C" fn bench() {
     let mut tmp = [0_f32; M];
 
     init_array(M, N, &mut A, &mut x);
-    kernel_atax(M, N, &A, &x, &mut y, &mut tmp)
+    kernel_atax(M, N, &A, &x, &mut y, &mut tmp);
+
+    utils::consume(y);
 }

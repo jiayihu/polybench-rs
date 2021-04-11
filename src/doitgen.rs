@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const NP: usize, const NQ: usize, const NR: usize>(
     nr: usize,
@@ -57,4 +58,6 @@ pub extern "C" fn bench() {
 
     init_array(NR, NQ, NP, &mut A, &mut C4);
     kernel_doitgen(NR, NQ, NP, &mut A, &C4, &mut sum);
+
+    utils::consume(A);
 }

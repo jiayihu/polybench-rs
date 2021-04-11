@@ -11,8 +11,8 @@ std = []
 [dependencies]
 
 [lib]
-name = "trmm"
-path = "src/trmm.rs"
+name = "syr2k"
+path = "src/syr2k.rs"
 crate-type = ["cdylib"]
 
 [profile.release]

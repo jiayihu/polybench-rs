@@ -1,6 +1,7 @@
-#![feature(min_const_generics)]
 #![feature(core_intrinsics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 use core::intrinsics::sqrtf32;
 
@@ -63,5 +64,7 @@ pub extern "C" fn bench() {
     let mut Q = [[0_f32; N]; M];
 
     init_array(M, N, &mut A, &mut R, &mut Q);
-    kernel_gramschmidt(M, N, &mut A, &mut R, &mut Q)
+    kernel_gramschmidt(M, N, &mut A, &mut R, &mut Q);
+
+    utils::consume(A);
 }

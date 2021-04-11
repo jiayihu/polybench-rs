@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn kernel_adi<const N: usize, const TSTEPS: usize>(
     tsteps: usize,
@@ -71,5 +72,7 @@ pub extern "C" fn bench() {
     let mut p = [[0_f32; N]; N];
     let mut q = [[0_f32; N]; N];
 
-    kernel_adi::<N, TSTEPS>(TSTEPS, N, &mut u, &mut v, &mut p, &mut q)
+    kernel_adi::<N, TSTEPS>(TSTEPS, N, &mut u, &mut v, &mut p, &mut q);
+
+    utils::consume(u);
 }

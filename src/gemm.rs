@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const NI: usize, const NJ: usize, const NK: usize>(
     ni: usize,
@@ -63,5 +64,7 @@ pub extern "C" fn bench() {
     let mut B = [[0_f32; NJ]; NK];
 
     init_array(NI, NJ, NK, &mut alpha, &mut beta, &mut C, &mut A, &mut B);
-    kernel_gemm(NI, NJ, NK, alpha, beta, &mut C, &A, &B)
+    kernel_gemm(NI, NJ, NK, alpha, beta, &mut C, &A, &B);
+
+    utils::consume(C);
 }

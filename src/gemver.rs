@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const N: usize>(
     n: usize,
@@ -95,5 +96,7 @@ pub extern "C" fn bench() {
 
     kernel_gemver(
         N, alpha, beta, &mut A, &u1, &v1, &u2, &v2, &mut w, &mut x, &y, &z,
-    )
+    );
+
+    utils::consume(w);
 }

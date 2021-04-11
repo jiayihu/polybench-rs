@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const M: usize, const N: usize>(
     m: usize,
@@ -60,5 +61,7 @@ pub extern "C" fn bench() {
     let mut mean = [0_f32; N];
 
     init_array(M, N, &mut float_n, &mut data);
-    kernel_covariance(M, N, float_n, &mut data, &mut cov, &mut mean)
+    kernel_covariance(M, N, float_n, &mut data, &mut cov, &mut mean);
+
+    utils::consume(cov);
 }

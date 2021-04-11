@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const H: usize, const W: usize>(
     w: usize,
@@ -126,5 +127,7 @@ pub extern "C" fn bench() {
     let mut y2 = [[0_f32; H]; W];
 
     init_array(W, H, &mut alpha, &mut img_in);
-    kernel_deriche(W, H, alpha, &img_in, &mut img_out, &mut y1, &mut y2)
+    kernel_deriche(W, H, alpha, &img_in, &mut img_out, &mut y1, &mut y2);
+
+    utils::consume(img_out);
 }

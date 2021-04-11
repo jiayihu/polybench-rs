@@ -5,27 +5,44 @@ import { exec } from 'child_process';
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
-const shell = promisify(exec);
+const shell_exec = promisify(exec);
 
-async function main() {
+async function benchNames() {
   const files = await readdir('./src');
 
-  for (const file of files) {
-    const name = file.replace('.rs', '');
+  return files.map((file) => file.replace('.rs', '')).filter((name) => name !== 'utils');
+}
 
-    if (name === 'utils') continue;
+async function compile() {
+  const names = await benchNames();
 
+  for (const name of names) {
     let content = await readFile('./Cargo.toml', 'utf-8');
 
     content = content.replace(/name = "(\w+)"/, `name = "${name}"`);
     content = content.replace(/path = "src\/(\w+).rs"/, `path = "src/${name}.rs"`);
 
     await writeFile('./Cargo.toml', content, 'utf-8');
-    // await shell(`cargo make build-wasm ${name}`);
-    await shell(
-      `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER cargo build --lib --target x86_64-unknown-linux-gnu --release`,
+
+    // await shell_exec(`cargo make build-wasm ${name}`);
+    await shell_exec(
+      `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-unknown-linux-gnu-gcc cargo build --lib --target x86_64-unknown-linux-gnu --release`,
     );
   }
 }
 
-main();
+async function interpret() {
+  const names = await benchNames();
+
+  for (const name of names) {
+    await shell_exec(`wasm-interp wasm/${name}.wasm --run-all-exports --trace`, {
+      maxBuffer: 10 * 1024 * 1024,
+    });
+
+    console.log('Interpreted', name);
+  }
+}
+
+compile();
+
+// interpret();

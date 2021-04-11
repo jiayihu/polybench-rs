@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 type Base = i8;
 
@@ -71,4 +72,6 @@ pub extern "C" fn bench() {
 
     init_array(N, &mut seq, &mut table);
     kernel_nussinov(N, &seq, &mut table);
+
+    utils::consume(table);
 }

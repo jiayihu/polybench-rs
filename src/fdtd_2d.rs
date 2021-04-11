@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const NX: usize, const NY: usize, const TMAX: usize>(
     tmax: usize,
@@ -65,4 +66,6 @@ pub extern "C" fn bench() {
 
     init_array(TMAX, NX, NY, &mut ex, &mut ey, &mut hz, &mut fict);
     kernel_fdtd_2d(TMAX, NX, NY, &mut ex, &mut ey, &mut hz, &fict);
+
+    utils::consume(hz);
 }

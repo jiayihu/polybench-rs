@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<const N: usize>(n: usize, r: &mut [f32; N]) {
     for i in 0..n {
@@ -39,4 +40,6 @@ pub extern "C" fn bench() {
 
     init_array(N, &mut r);
     kernel_durbin(N, &r, &mut y);
+
+    utils::consume(y);
 }

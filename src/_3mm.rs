@@ -1,5 +1,6 @@
-#![feature(min_const_generics)]
 #![allow(non_snake_case)]
+
+mod utils;
 
 fn init_array<
     const NI: usize,
@@ -102,5 +103,7 @@ pub extern "C" fn bench() {
     let mut G = [[0_f32; NL]; NI];
 
     init_array(NI, NJ, NK, NL, NM, &mut A, &mut B, &mut C, &mut D);
-    kernel_3mm(NI, NJ, NK, NL, NM, &mut E, &A, &B, &mut F, &C, &D, &mut G)
+    kernel_3mm(NI, NJ, NK, NL, NM, &mut E, &A, &B, &mut F, &C, &D, &mut G);
+
+    utils::consume(G);
 }
