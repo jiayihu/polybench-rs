@@ -3,10 +3,10 @@ target = "wasm32-unknown-unknown"
 
 [target.wasm32-unknown-unknown]
 rustflags = [
-  "-C", "link-arg=-zstack-size=16",
+  "-C", "link-arg=-zstack-size=4096",
 ]
 
-[target.x86_64-unknown-linux-gnu]
-rustflags = [
-  "-C", "prefer-dynamic",
-]
+# [target.x86_64-unknown-linux-gnu]
+# rustflags = [
+#   "-C", "prefer-dynamic",
+# ]
